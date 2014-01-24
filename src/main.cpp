@@ -839,9 +839,9 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
     return nSubsidy + nFees;
 }
 
-static const int64 nTargetTimespan =  30 * 120 * 60; // 30 blocks
-static const int64 nTargetSpacing = 120 * 60; // 120 seconds
-static const int64 nInterval = nTargetTimespan / nTargetSpacing;
+static int64 nTargetTimespan =  30 * 2 * 60; // 30 blocks
+static int64 nTargetSpacing = 2 * 60; // 120 seconds
+static int64 nInterval = nTargetTimespan / nTargetSpacing;
 
 //
 // minimum amount of work that could possibly be required nTime after
@@ -871,12 +871,24 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
 unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlock *pblock)
 {
     unsigned int nProofOfWorkLimit = bnProofOfWorkLimit.GetCompact();
-
+	
+	if (pindexLast->nHeight+1 < 370) {
+		nTargetTimespan =  30 * 120 * 60;
+		nTargetSpacing = 120 * 60;
+		nInterval = nTargetTimespan / nTargetSpacing; }
+	else {
+		nTargetTimespan =  30 * 2 * 60; // 30 blocks
+		nTargetSpacing = 2 * 60; // 120 seconds
+		nInterval = nTargetTimespan / nTargetSpacing; }
+		
     // Genesis block
     if (pindexLast == NULL)
         return nProofOfWorkLimit;
 	
 	if (pindexLast->nHeight+1 == 20)
+		return bnStartDiff.GetCompact();
+	
+	if (pindexLast->nHeight+1 == 370)
 		return bnStartDiff.GetCompact();
 
     // Only change once per interval
